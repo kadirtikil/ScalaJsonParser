@@ -4,7 +4,30 @@ import scala.annotation.tailrec
 
 // Takes a JsonString (not as Byte just as a simple String) and returns a map containing each Element of it 
 
-class FunctionalJsonTokenizer(jsonString: String){ 
+class FunctionalJsonTokenizer(jsonString: String){
+
+
+  def helperIsNumber(potentialNum: String): Boolean = {
+    if(potentialNum.head.isDigit) true
+    else false
+  }
+
+  def helperEndNumber(jsonStringFromIteration: String): Int = {
+    @tailrec
+    def helper(recursiveString: String, numEndPosition: Int): Int = {
+     if (recursiveString.isEmpty) numEndPosition
+     else {
+       recursiveString.head match {
+          case c if (helperIsNumber(c.toString)) => helper(recursiveString.tail, numEndPosition + 1)
+          case c if (c == '.') => helper(recursiveString.tail, numEndPosition + 1)
+          case _ => numEndPosition
+        }
+      }
+    }
+  
+   helper(jsonStringFromIteration, 0)
+  }
+
 
   // The tokenizer has to be functional, so it cannot mutate any state of any value.
   // it has to parse the string, and allocate new memory for a list, which will then contain the elements as string.
@@ -84,11 +107,14 @@ class FunctionalJsonTokenizer(jsonString: String){
       // What if its a number?
       // What kind of number is not important, the typer will do that later on
       // check if char is num with regex???
-      //
-
+      case s if helperIsNumber(s.take(1)) => 
+        val endOfNumber = helperEndNumber(s)
+        if(endOfNumber < 0) throw new RuntimeException("some problems with numbers")      
+        val token = s.substring(0, endOfNumber)
+        (token, s.substring(endOfNumber + 1))
 
       case _ =>
-        throw new RuntimeException("Unexpected character in JSON input")
+        throw new RuntimeException("Not a valid Json element.")
     }
   } 
 }
