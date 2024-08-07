@@ -13,19 +13,22 @@ class FunctionalJsonTokenizer(jsonString: String){
   def tokenizer(): List[String] = {
     @tailrec
     def helper(reducedJsonString: String, listOfTokenizedElements: List[String]): List[String] = {
-      // Any preparation on the string here
 
       if(reducedJsonString.isEmpty) {
         listOfTokenizedElements
       } else {
         // value, with the firs telement being a token and the second being the rest of the string
+        // prepare string for iteration by ridding it of white spaces before the first default token and after the last default token.
+        
+
         val (token, rest) = tokenParser(reducedJsonString)
-        helper(rest, listOfTokenizedElements :+ token)
+        
+        if(token == "") helper(rest, listOfTokenizedElements)
+        else helper(rest, listOfTokenizedElements :+ token) 
       }
     }
     helper(jsonString, List())
   }
-
   
   // The parser itself
   // creates a token and adds it to the list
@@ -42,15 +45,17 @@ class FunctionalJsonTokenizer(jsonString: String){
         if(endOfToken < 0) throw new RuntimeException("whoopsie")
         val token = s.substring(0, endOfToken+1)
         (token, s.substring(endOfToken + 1))
+      
+      // whitespaces before and after default tokens work
+      case s if s.startsWith(" ") => 
+        ("", s.substring(1))
 
       case s if s.startsWith("{") =>
         ("{", s.substring(1))
 
-      
       case s if s.startsWith("}") =>
         ("}", s.substring(1))
 
-      
       case s if s.startsWith("[") => 
         ("[", s.substring(1))
       
@@ -62,6 +67,25 @@ class FunctionalJsonTokenizer(jsonString: String){
       
       case s if s.startsWith(",") => 
         (",", s.substring(1))
+
+      // what if its a boolean?
+      // have to check, because booleans dont have "" to indicate they are strings
+      case s if s.startsWith("true") =>
+        ("true", s.substring(4))
+
+      case s if s.startsWith("false") => 
+        ("false", s.substring(5))
+
+      // what is its a null?
+      case s if s.startsWith("null") => 
+        ("null", s.substring(4))
+
+      // Now to the big one
+      // What if its a number?
+      // What kind of number is not important, the typer will do that later on
+      // check if char is num with regex???
+      //
+
 
       case _ =>
         throw new RuntimeException("Unexpected character in JSON input")
