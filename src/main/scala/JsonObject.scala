@@ -111,7 +111,8 @@ class FunctionalJsonTokenizer(jsonString: String){
         val endOfNumber = helperEndNumber(s)
         if(endOfNumber < 0) throw new RuntimeException("some problems with numbers")      
         val token = s.substring(0, endOfNumber)
-        (token, s.substring(endOfNumber + 1))
+        if(endOfNumber == 1) (token, s.substring(endOfNumber))
+        else (token, s.substring(endOfNumber + 1))
 
       case _ =>
         throw new RuntimeException("Not a valid Json element.")
