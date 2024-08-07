@@ -1,4 +1,4 @@
-package scala
+/*package scala
 
 import scala.annotation.tailrec
 
@@ -15,13 +15,12 @@ class Typer(tokenList: List[String]) {
       else {
         parsingList.head match {
           case nil => typeOfTokens
-          case head::nil => {
-            if(head.startsWith("\"") typesOfTokens +: "string"
-
+          case head::tail => {
+            if(head.startsWith("\"")) typesOfTokens +: "string"
             
-          } 
+          }
           case _ => {
-          
+            
           }
         }
       }
@@ -29,4 +28,4 @@ class Typer(tokenList: List[String]) {
 
   helper(tokenList)
   }
-}
+}*/
