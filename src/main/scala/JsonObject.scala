@@ -6,11 +6,11 @@ import scala.annotation.tailrec
 sealed trait JsonValue 
 case class JsonString(jsonString: String) extends JsonValue
 case class JsonInt(jsonInt: Int) extends JsonValue
-case class JsonFloat(jsonFloat: Float) extends JsonValue
+case class JsonFloat(jsonFloat: Float) extends JsonValue // hasnt been used
 case class JsonDouble(jsonDouble: Double) extends JsonValue
 case class JsonBoolean(jsonBoolean: Boolean) extends JsonValue
 case class JsonList(jsonList: List[JsonValue]) extends JsonValue
-case class JsonNull(jsonNull: String = "null") extends JsonValue // Providing a default value for JsonNull
+case class JsonNull(jsonNull: String = "null") extends JsonValue 
 
 class FunctionalJsonObject(listOfTokens: List[String]) {
 
@@ -23,11 +23,16 @@ class FunctionalJsonObject(listOfTokens: List[String]) {
           case s if s.startsWith("\"") =>
             // Key found:
             val keyOfVal = s.stripPrefix("\"").stripSuffix("\"")
-            // Check for the next element (no list yet):
+            // Check for the next element (only elements, lists will follow) 
             parsingTokens.tail match {
               case ":" :: value :: tail =>
-                val valueForKey = valueTyper(value)
-                helper(tail, mapOfJsonVals + (keyOfVal -> valueForKey))
+                if(value == "[") {
+                  val listOfElements = listFinder(tail)
+                  helper(tail, mapOfJsonVals + (keyOfVal -> JsonList(listOfElements)))
+                } else {
+                  val valueForKey = valueTyper(value)
+                  helper(tail, mapOfJsonVals + (keyOfVal -> valueForKey))
+                }
               case _ => helper(parsingTokens.tail, mapOfJsonVals)
             }
           case _ => helper(parsingTokens.tail, mapOfJsonVals)
@@ -38,7 +43,7 @@ class FunctionalJsonObject(listOfTokens: List[String]) {
     helper(listOfTokens, Map())
   }
 
-  // Helper function to return either an element for a key or a list.
+  // Helper function to return an element.
   def valueTyper(token: String): JsonValue = {
     token match {
       case s if s.startsWith("\"") => JsonString(s.stripPrefix("\"").stripSuffix("\""))
@@ -54,4 +59,25 @@ class FunctionalJsonObject(listOfTokens: List[String]) {
   def helperIsNumber(potentialNum: String): Boolean = {
     potentialNum.forall(c => c.isDigit || c == '.') && potentialNum.nonEmpty
   }
+
+  // Helper function to return a list of elements.
+  def listFinder(listFound: List[String]) : List[JsonValue] = {
+    @tailrec
+    def helper(listToIterate: List[String], resultingList: List[JsonValue]): List[JsonValue] = {
+      listToIterate.head match {
+        case "]" => resultingList
+        case s if (s.startsWith("\"")) => helper(listToIterate.tail, resultingList :+ JsonString(s))
+        case s if (helperIsNumber(s)) => {
+          if(s.contains(".")) helper(listToIterate.tail, resultingList :+ JsonDouble(s.toDouble))
+          else helper(listToIterate.tail, resultingList :+ JsonInt(s.toInt))
+        }
+        case s if(s.startsWith("true")) => helper(listToIterate.tail, resultingList :+ JsonBoolean(true))
+        case s if (s.startsWith("false")) => helper(listToIterate.tail, resultingList :+ JsonBoolean(false))
+        case _ => helper(listToIterate.tail, resultingList)
+
+      } 
+    }
+    helper(listFound, List())
+  }
+
 }
