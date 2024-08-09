@@ -25,7 +25,7 @@ class FunctionalJsonTokenizer(jsonString: String){
       }
     }
   
-   helper(jsonStringFromIteration, 0)
+    helper(jsonStringFromIteration, 0)
   }
 
 
@@ -50,7 +50,7 @@ class FunctionalJsonTokenizer(jsonString: String){
         else helper(rest, listOfTokenizedElements :+ token) 
       }
     }
-    helper(jsonString, List())
+    helper(jsonString.replaceAll("\\s", ""), List())
   }
   
   // The parser itself
@@ -112,6 +112,7 @@ class FunctionalJsonTokenizer(jsonString: String){
         if(endOfNumber < 0) throw new RuntimeException("some problems with numbers")      
         val token = s.substring(0, endOfNumber)
         (token, s.substring(endOfNumber))
+
 
       case _ =>
         throw new RuntimeException("Not a valid Json element.")
