@@ -25,10 +25,12 @@ package scala
 
   val jsonStringListMultiple = """{"a list": [false, 123, "hello"]}"""
 
+  val checkforquotes = """{"test" : "value"}"""
+
  
 
 
-  val temp = new FunctionalJsonTokenizer(jsonStringListMultiple) 
+  val temp = new FunctionalJsonTokenizer(checkforquotes) 
   val tokens = temp.tokenizer()
   print("\n" + tokens.mkString("[\n  ", ",\n  ", "\n]") + "\n")
 
