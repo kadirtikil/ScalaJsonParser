@@ -50,7 +50,10 @@ class FunctionalJsonTokenizer(jsonString: String){
         else helper(rest, listOfTokenizedElements :+ token) 
       }
     }
-    helper(jsonString.replaceAll("[\n\t]", ""), List())
+    // here the jsonstring should be ready to go. 
+    // any new line tabs and quoates inside the strings should not be touched.
+    //
+    helper(jsonString, List())
   }
   
   // The parser itself
@@ -113,6 +116,9 @@ class FunctionalJsonTokenizer(jsonString: String){
         val token = s.substring(0, endOfNumber)
         (token, s.substring(endOfNumber))
 
+      case s if (s.startsWith("\n")) => ("", s.substring(1)) 
+      
+      case s if (s.startsWith("\t")) => ("", s.substring(1))
 
       case _ =>
         throw new RuntimeException("Not a valid Json element.")

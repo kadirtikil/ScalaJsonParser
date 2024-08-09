@@ -30,7 +30,7 @@ package scala
  
 
 
-  val temp = new FunctionalJsonTokenizer(checkforquotes) 
+  val temp = new FunctionalJsonTokenizer(jsonStringBigBoy) 
   val tokens = temp.tokenizer()
   print("\n" + tokens.mkString("[\n  ", ",\n  ", "\n]") + "\n")
 
