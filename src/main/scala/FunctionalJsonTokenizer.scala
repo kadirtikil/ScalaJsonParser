@@ -50,7 +50,7 @@ class FunctionalJsonTokenizer(jsonString: String){
         else helper(rest, listOfTokenizedElements :+ token) 
       }
     }
-    helper(jsonString.replaceAll("\\s", ""), List())
+    helper(jsonString.replaceAll("[\n\t]", ""), List())
   }
   
   // The parser itself
