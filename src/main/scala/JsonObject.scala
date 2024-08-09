@@ -11,6 +11,8 @@ case class JsonDouble(jsonDouble: Double) extends JsonValue
 case class JsonBoolean(jsonBoolean: Boolean) extends JsonValue
 case class JsonList(jsonList: List[JsonValue]) extends JsonValue
 case class JsonNull(jsonNull: String = "null") extends JsonValue 
+case class JsonObject(jsonObject: Map[String, JsonValue]) extends JsonValue
+
 
 class FunctionalJsonObject(listOfTokens: List[String]) {
 
@@ -29,6 +31,9 @@ class FunctionalJsonObject(listOfTokens: List[String]) {
                 if(value == "[") {
                   val listOfElements = listFinder(tail)
                   helper(tail, mapOfJsonVals + (keyOfVal -> JsonList(listOfElements)))
+                } else if(value == "{") {
+                  val mapOfElements = mapFinder(value::tail)
+                  helper(tail, mapOfJsonVals + (keyOfVal -> JsonObject(mapOfElements)))
                 } else {
                   val valueForKey = valueTyper(value)
                   helper(tail, mapOfJsonVals + (keyOfVal -> valueForKey))
@@ -78,6 +83,18 @@ class FunctionalJsonObject(listOfTokens: List[String]) {
       } 
     }
     helper(listFound, List())
+  }
+
+  // Helper function to return a map of elements.
+  def mapFinder(listFound: List[String]) : Map[String, JsonValue] = {
+
+    // Best part about this:
+    // If i want to find another object inside an object, just start with from the beginning :D
+    val parser = new FunctionalJsonObject(listFound)
+    val resultingObject = parser.functionalMapBuilderForJson()
+
+    return resultingObject
+    
   }
 
 }
